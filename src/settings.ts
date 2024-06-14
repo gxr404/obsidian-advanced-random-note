@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, DropdownComponent, PluginSettingTab, Setting } from "obsidian";
 import QueryView from "src/gui/queryItem/QueryView.svelte";
 import AdvancedRandomNote from "./main";
 import { type OpenType, type Query } from "./types";
@@ -10,6 +10,7 @@ export interface Settings {
 	debug: boolean;
 	openType: OpenType;
 	setActive: boolean;
+	defaultQuery: Query | false;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -18,10 +19,12 @@ export const DEFAULT_SETTINGS: Settings = {
 	debug: false,
 	openType: "Active Leaf",
 	setActive: true,
+	defaultQuery: false,
 };
 
 export class SettingTab extends PluginSettingTab {
 	plugin: AdvancedRandomNote;
+	defaultQuerySetting?: Setting;
 
 	constructor(app: App, plugin: AdvancedRandomNote) {
 		super(app, plugin);
@@ -62,6 +65,11 @@ export class SettingTab extends PluginSettingTab {
 					})
 			);
 
+		// Default query
+		this.defaultQuerySetting = new Setting(this.containerEl)
+			.setName("Default Query")
+		this.updateDefaultQueryDropdown()
+
 		// Disabled folders setting
 		new Setting(this.containerEl)
 			.setName("Disabled folders")
@@ -95,8 +103,34 @@ export class SettingTab extends PluginSettingTab {
 				saveQueries: async (queries: Query[]) => {
 					this.plugin.settings.queries = queries;
 					await this.plugin.saveSettings();
+					this.updateDefaultQueryDropdown();
 				},
 			},
 		});
+	}
+
+	async updateDefaultQueryDropdown() {
+		if (!this.defaultQuerySetting) return
+		const { settingEl } = this.defaultQuerySetting
+		const oldDropdown = settingEl.querySelector('.dropdown')
+		if (oldDropdown) settingEl.removeChild(oldDropdown)
+
+		const dropdown = new DropdownComponent(settingEl)
+		const { queries } = this.plugin.settings
+		const { defaultQuery } = this.plugin.settings
+		const options = queries.map((item) => [item.id, item.name])
+		const currentDefaultQuery = queries.find((item) => defaultQuery && item.id === defaultQuery.id)
+		if (!currentDefaultQuery) {
+			this.plugin.settings.defaultQuery = false
+			this.plugin.saveSettings()
+		}
+		dropdown
+			.addOption('None', 'None')
+			.addOptions(Object.fromEntries(options))
+			.setValue(currentDefaultQuery ? currentDefaultQuery.id : 'None')
+			.onChange(async (value) => {
+				this.plugin.settings.defaultQuery = queries.find((item) => item.id === value) || false
+				await this.plugin.saveSettings();
+			})
 	}
 }

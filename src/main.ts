@@ -139,6 +139,10 @@ export default class AdvancedRandomNote extends Plugin {
 	}
 
 	handleOpenRandomFileModal() {
+		if (this.settings.defaultQuery) {
+			this.executeQuery(this.settings.defaultQuery);
+			return
+		}
 		const modal = new RandomNoteModal(
 			this.app,
 			this.settings.queries,
