@@ -31,3 +31,8 @@ export interface SearchTag {
 }
 
 export type RandomNoteResult = TFile[];
+
+export const TOOLTIP = {
+	MODAL: "Open random note modal",
+	DIRECTLY_RANDOM: "Start random note"
+}

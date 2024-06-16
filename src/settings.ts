@@ -68,6 +68,7 @@ export class SettingTab extends PluginSettingTab {
 		// Default query
 		this.defaultQuerySetting = new Setting(this.containerEl)
 			.setName("Default Query")
+			.setDesc("The default start query for the ribbon button.")
 		this.updateDefaultQueryDropdown()
 
 		// Disabled folders setting

@@ -2,7 +2,7 @@ import { Plugin, TFile, TFolder } from "obsidian";
 import { RandomNoteModal } from "src/gui/modals/OpenRandomNoteModal/openRandomNoteModal";
 import { Search } from "./search";
 import { DEFAULT_SETTINGS, SettingTab, Settings } from "./settings";
-import type { Query, QueryOpenType } from "./types";
+import { TOOLTIP, type Query, type QueryOpenType } from "./types";
 import {
 	deleteObsidianCommand,
 	flattenFile,
@@ -12,6 +12,7 @@ import {
 
 export default class AdvancedRandomNote extends Plugin {
 	settings!: Settings;
+	tooltipEl?: HTMLElement
 
 	async onload() {
 		// Load plugin settings
@@ -42,9 +43,13 @@ export default class AdvancedRandomNote extends Plugin {
 			},
 		});
 
-		this.addRibbonIcon("dice", "Open random note modal", () => {
+		this.tooltipEl = this.addRibbonIcon("dice", TOOLTIP.MODAL, () => {
 			this.handleOpenRandomFileModal();
 		});
+		// The RibbonIcon title must be a fixed value,
+		// otherwise it will cause an error in the order of the icons,
+		// Update initialization title only after addRibbonIcon
+		this.updateTooltip()
 
 		// File menu
 		this.registerEvent(
@@ -86,6 +91,7 @@ export default class AdvancedRandomNote extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		this.updateTooltip()
 	}
 
 	async openFile(file: TFile, openType: QueryOpenType = "Default") {
@@ -136,6 +142,20 @@ export default class AdvancedRandomNote extends Plugin {
 			this.app.vault.getFiles()
 		);
 		await this.openRandomFile(foundFiles);
+	}
+
+	updateTooltip () {
+		if (!this.tooltipEl) return
+		const isDirectlyRandom = Boolean(this.settings.defaultQuery)
+		const KEY = isDirectlyRandom ? 'DIRECTLY_RANDOM' : 'MODAL'
+		const currentTooltip = this.tooltipEl?.ariaLabel
+		if (currentTooltip !== TOOLTIP[KEY]) {
+			let tooltip =  TOOLTIP[KEY]
+			if (isDirectlyRandom && this.settings.defaultQuery) {
+				tooltip += `: ${this.settings.defaultQuery.name}`
+			}
+			this.tooltipEl.setAttr('aria-label', tooltip)
+		}
 	}
 
 	handleOpenRandomFileModal() {
