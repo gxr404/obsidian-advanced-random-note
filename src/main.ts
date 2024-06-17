@@ -148,14 +148,11 @@ export default class AdvancedRandomNote extends Plugin {
 		if (!this.tooltipEl) return
 		const isDirectlyRandom = Boolean(this.settings.defaultQuery)
 		const KEY = isDirectlyRandom ? 'DIRECTLY_RANDOM' : 'MODAL'
-		const currentTooltip = this.tooltipEl?.ariaLabel
-		if (currentTooltip !== TOOLTIP[KEY]) {
-			let tooltip =  TOOLTIP[KEY]
-			if (isDirectlyRandom && this.settings.defaultQuery) {
-				tooltip += `: ${this.settings.defaultQuery.name}`
-			}
-			this.tooltipEl.setAttr('aria-label', tooltip)
+		let tooltip =  TOOLTIP[KEY]
+		if (isDirectlyRandom && this.settings.defaultQuery) {
+			tooltip += `: ${this.settings.defaultQuery.name}`
 		}
+		this.tooltipEl.setAttr('aria-label', tooltip)
 	}
 
 	handleOpenRandomFileModal() {
