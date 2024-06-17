@@ -44,6 +44,10 @@ export default class AdvancedRandomNote extends Plugin {
 		});
 
 		this.tooltipEl = this.addRibbonIcon("dice", TOOLTIP.MODAL, () => {
+			if (this.settings.defaultQuery) {
+				this.executeQuery(this.settings.defaultQuery);
+				return
+			}
 			this.handleOpenRandomFileModal();
 		});
 		// The RibbonIcon title must be a fixed value,
@@ -156,10 +160,6 @@ export default class AdvancedRandomNote extends Plugin {
 	}
 
 	handleOpenRandomFileModal() {
-		if (this.settings.defaultQuery) {
-			this.executeQuery(this.settings.defaultQuery);
-			return
-		}
 		const modal = new RandomNoteModal(
 			this.app,
 			this.settings.queries,
