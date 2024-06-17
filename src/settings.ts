@@ -123,7 +123,8 @@ export class SettingTab extends PluginSettingTab {
 		const currentDefaultQuery = queries.find((item) => defaultQuery && item.id === defaultQuery.id)
 		if (!currentDefaultQuery) {
 			this.plugin.settings.defaultQuery = false
-			this.plugin.saveSettings()
+			await this.plugin.saveSettings()
+			this.plugin.updateTooltip()
 		}
 		dropdown
 			.addOption('None', 'None')
@@ -131,7 +132,8 @@ export class SettingTab extends PluginSettingTab {
 			.setValue(currentDefaultQuery ? currentDefaultQuery.id : 'None')
 			.onChange(async (value) => {
 				this.plugin.settings.defaultQuery = queries.find((item) => item.id === value) || false
-				await this.plugin.saveSettings();
+				await this.plugin.saveSettings()
+				this.plugin.updateTooltip()
 			})
 	}
 }

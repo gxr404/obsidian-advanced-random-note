@@ -95,7 +95,6 @@ export default class AdvancedRandomNote extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-		this.updateTooltip()
 	}
 
 	async openFile(file: TFile, openType: QueryOpenType = "Default") {
